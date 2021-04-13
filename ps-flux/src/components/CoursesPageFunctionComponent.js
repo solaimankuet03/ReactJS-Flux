@@ -1,36 +1,25 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { getCourses } from '../api/courseApi'
 
-class CoursesPage extends React.Component{
-    /*constructor(props){
-        super(props);
-        this.state ={
-            courses:[]
-        };
-    }*/
-    /*another way*/
-    state ={
-        courses:[]
-    };
+function CoursesPageFunctionComponent() {
+    
+    
+    const [courses, setCourses] = useState([]);
+    //componentDidMount replaced to useEffect at function component
+    useEffect( () =>{
+        getCourses().then(coursesResponse => setCourses(coursesResponse));
+    }, [])
+    
 
-    componentDidMount(){
-        
-        getCourses().then(courses => this.setState({ courses: courses }));
-        
-        /*getCourses().then((courses) => {this.setState({ courses: courses })}).catch(function (error) {
-            console.log(error);
-        })  ;*/
-    }
-
-    renderRow(course){
+    /*const renderRow = (course) =>{
         return( <tr key={course.id}>
             <td>{course.title}</td>
             <td>{course.authorId}</td>
             <td>{course.category}</td>
         </tr>);
-    }
+    };*/
 
-    render(){
+    
         return(
             <React.Fragment>
             <h2>Courses</h2>
@@ -45,7 +34,7 @@ class CoursesPage extends React.Component{
                 <tbody>
                     { 
                     //this.state.courses.map(this.renderRow)
-                    this.state.courses.map(course =>{
+                    courses.map(course =>{
                         return( <tr>
                             <td>{course.title}</td>
                             <td>{course.authorId}</td>
@@ -58,7 +47,7 @@ class CoursesPage extends React.Component{
             </table>
             </React.Fragment>
         );
-    }
+    
 }
 
-export default CoursesPage;
+export default CoursesPageFunctionComponent;
