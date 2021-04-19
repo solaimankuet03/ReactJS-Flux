@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
 import CourseForm from "./CourseForm";
-import * as courseApi from "../api/courseApi";
+//import * as courseApi from "../api/courseApi";
+import CourseStore from "../stores/courseStore";
 import { toast } from "react-toastify";
+import * as courseActions from "../actions/courseActions";
 
 const ManageCoursePage = props => {
   const [errors, setErrors] = useState({});
+  const [courses, setCourses] = useState(CourseStore.getCourses());
   const [course, setCourse] = useState({
     id: null,
     slug: "",
@@ -13,12 +16,28 @@ const ManageCoursePage = props => {
     category: ""
   });
 
-  useEffect(() => {
+  /*useEffect(() => {
     const slug = props.match.params.slug; // from the path `/courses/:slug`
     if (slug) {
-      courseApi.getCourseBySlug(slug).then(_course => setCourse(_course));
+      //courseApi.getCourseBySlug(slug).then(_course => setCourse(_course));
+      setCourse(CourseStore.getCourseBySlug(slug));
     }
-  }, [props.match.params.slug]);
+  }, [props.match.params.slug]);*/
+
+  useEffect(() => {
+    CourseStore.addChangeListener(onChange);
+    const slug = props.match.params.slug; // from the path `/courses/:slug`
+    if (courses.length === 0) {
+      courseActions.loadCourses();        
+    } else if (slug) {
+      setCourse(CourseStore.getCourseBySlug(slug));
+    }
+    return () => CourseStore.removeChangeListener(onChange);
+  }, [courses.length, props.match.params.slug]);
+
+  function onChange() {
+    setCourses(CourseStore.getCourses());
+  }
 
   function handleChange({ target }) {
     setCourse({
@@ -42,10 +61,14 @@ const ManageCoursePage = props => {
   function handleSubmit(event) {
     event.preventDefault();
     if (!formIsValid()) return;
-    courseApi.saveCourse(course).then(() => {
+    /*courseApi.saveCourse(course).then(() => {
       props.history.push("/courses");
       toast.success("Course saved.");
-    });
+    });*/
+    courseActions.saveCourse(course).then(() => {
+        props.history.push("/CoursesPageFunctionComponent");
+        toast.success("Course saved.");
+      });
   }
 
   return (
